@@ -17,6 +17,33 @@ So before writing a step that says "paste the value it printed", stop and ask wh
 
 When a value genuinely can't be known ahead of time (a generated token, something only their console will show), say explicitly that it must be pasted as a single line with no spaces or breaks, and name the error they'll see if it isn't.
 
+## Pick the easiest route, not the most pasteable one
+
+The page exists to make the procedure easy. It does not exist to make everything
+a copy block, and those two goals come apart more often than you would expect.
+
+Plenty of console tasks are genuinely trivial in the UI — click *Add site*, type
+a name, click *Create* — and genuinely awkward from a shell, needing a CLI
+install, an auth flow, a project flag and an incantation that fails in ways the
+UI simply doesn't have. Reaching for the command line there produces a longer,
+more fragile step that is *worse* for the person following it, purely because a
+command is something you can put a Copy button on. That is the tail wagging the
+dog.
+
+So for each step, ask which route you would honestly tell a friend to take, then
+write that one. "Open this page, click *Add another site*, enter
+`a9-tracker`" is an excellent step: it is one deep link, one button and one copy
+block for the only part worth copying.
+
+The command line earns its place when it is genuinely better: many operations at
+once, something with no UI at all, exact values that are painful to type
+correctly, or anything worth re-running identically later. A single form with
+two fields is none of those.
+
+A good tell is length. If the shell version of a step needs installs, flags and
+error handling to do what three taps would do, the UI is the answer and the
+elaborate script was you optimizing for the format instead of the person.
+
 ## What the page needs to do
 
 Build it as an artifact, following `artifact-design` like any other page. These are the functional requirements on top of that; `references/mechanics.md` has the copy-button and progress-persistence code, which is fiddly enough to be worth not rewriting.
