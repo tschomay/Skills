@@ -168,3 +168,68 @@ For a single value, assert what you actually depend on:
 ```python
 assert "\n" not in value and " " not in value, repr(value)
 ```
+
+## Fill-once variables
+
+When one unknown value recurs across many commands, collect it once at the top
+of the page and let every occurrence rewrite itself. Mark each occurrence with a
+`data-var` attribute naming the field:
+
+```html
+<label>AWS account ID
+  <input class="var-input" data-var="account" placeholder="123456789012">
+</label>
+
+<pre><code>aws iam list-access-keys --user-name ci \
+  --profile <span data-var="account">ACCOUNT_ID</span></code></pre>
+```
+
+Rewrite on input, and persist alongside progress so the values survive leaving
+the page:
+
+```js
+var VKEY = "runbook-vars-v1";
+
+function loadVars() {
+  try { return JSON.parse(localStorage.getItem(VKEY) || "{}"); }
+  catch (e) { return {}; }
+}
+
+function saveVars(v) {
+  try { localStorage.setItem(VKEY, JSON.stringify(v)); } catch (e) {}
+}
+
+var vars = loadVars();
+
+function applyVars() {
+  document.querySelectorAll("[data-var]").forEach(function (el) {
+    var key = el.dataset.var;
+    if (el.tagName === "INPUT") {
+      if (vars[key] != null && el.value !== vars[key]) el.value = vars[key];
+      return;
+    }
+    // Keep the placeholder visible until a real value exists, so a half-filled
+    // page reads as obviously incomplete rather than quietly wrong.
+    var fallback = el.dataset.placeholder || (el.dataset.placeholder = el.textContent);
+    el.textContent = vars[key] || fallback;
+    el.classList.toggle("unfilled", !vars[key]);
+  });
+}
+
+document.querySelectorAll("input.var-input").forEach(function (input) {
+  input.addEventListener("input", function () {
+    vars[input.dataset.var] = input.value.trim();
+    saveVars(vars);
+    applyVars();
+  });
+});
+
+applyVars();
+```
+
+Style `.unfilled` so an unsubstituted placeholder is visually obvious — a dashed
+underline or the warning color. The failure this prevents is someone copying a
+command that still says `ACCOUNT_ID`, which looks plausible enough to paste.
+
+Note that `textContent` (not `innerHTML`) is what keeps a pasted value from being
+interpreted as markup.

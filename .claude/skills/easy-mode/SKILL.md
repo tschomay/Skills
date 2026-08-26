@@ -31,6 +31,10 @@ Build it as an artifact, following `artifact-design` like any other page. These 
 
 **Number the steps only if order is real.** If step 4 depends on step 3's output, numbering is information. If the steps are independent, numbering is decoration — drop it.
 
+**When a value can't be known, ask for it once.** Sometimes an identifier is genuinely unavailable to you — an account number, a chosen name, a generated id — and it recurs in eight different commands. Rather than leaving eight placeholders for them to edit by hand, put a small "fill this in once" panel at the top: they type it once, and every command, link and code block on the page rewrites to match. Persist those inputs the same way you persist progress.
+
+This is worth reaching for whenever the same unknown appears more than two or three times. Hand-editing a placeholder inside a copied command is precisely the error-prone transcription the page exists to eliminate — and it fails silently, because a command with a stale placeholder still looks plausible. Keep the panel small and put it above the first step, since nothing below it is correct until it's filled.
+
 ## Write for the moment of failure
 
 Assume every step will fail for someone. The difference between a good runbook and a bad one is what happens then.
