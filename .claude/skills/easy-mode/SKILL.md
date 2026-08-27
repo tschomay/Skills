@@ -1,111 +1,76 @@
 ---
 name: easy-mode
-description: Turn a multi-step manual procedure into a published, tap-to-copy checklist the user can work through on their phone. Use this whenever the user has to do things by hand that you cannot do for them — clicking through cloud consoles, pasting commands into a shell, setting secrets in a dashboard, DNS records, one-time account setup — and especially when they say they are on mobile, ask you to "walk me through" something, ask for "the steps", or ask you to make something easy. Also use it when you are about to end a turn with a numbered list of manual steps in chat: that list is the trigger, not a substitute.
+description: Turn manual procedures into a published, tap-to-copy checklist. Use when the user needs to click through cloud consoles, paste commands, set secrets, or do DNS work — especially on mobile or when asking to "walk me through" steps. Trigger: about to end a turn with a numbered list of manual steps? Use this instead.
 ---
 
-Some work you cannot finish for the user. Provisioning a cloud identity, pasting a secret into a dashboard, approving a billing prompt — these need their hands and their credentials. What you hand over at that boundary is the deliverable, and a numbered list in a terminal is a poor one. It scrolls away, it can't be tapped, and it makes them retype values you already know.
+Some work you cannot automate. Provisioning identities, pasting secrets, approving prompts — these need the user's hands and credentials. What you hand over at that boundary is your deliverable, not a scrollable terminal list.
 
-Easy mode replaces that list with a published page: every command one tap to copy, every link opening the exact console page, progress that survives putting the phone down.
+Easy mode replaces that with a published checklist: every command is one tap to copy, every link goes straight to the exact console page, and progress persists through interruptions.
 
-## The one rule that matters most
+## The core rule: never make them transcribe
 
-**Never make the user transcribe something you can compute.**
+**Never ask the user to transcribe something you can compute.** A 97-character identifier wrapped across terminal lines is a transcription trap — copied line-by-line, it silently picks up breaks mid-word.
 
-This is where handoffs actually break. A 97-character resource identifier printed into a terminal that wraps at 60 columns is a trap: copying across the wrap drags in a line break, mid-word, invisible. The system then rejects it with an error about the value's *format*, which reads like a configuration problem and sends the user hunting in the wrong place.
+Before saying "paste the value it printed", ask if you can determine it from config, earlier output, or the project's identifiers. Usually you can — put it in a copy block and use console output for confirmation only.
 
-So before writing a step that says "paste the value it printed", stop and ask whether you can determine that value yourself — from config files in the repo, from earlier command output in the conversation, from the project's own identifiers. Usually you can. Then put the finished string in a copy block and let the terminal output be confirmation rather than a source.
+For values you genuinely cannot know (generated tokens, account IDs), say explicitly they must be pasted as one line with no spaces or breaks, and name the error that signals transcription failed.
 
-When a value genuinely can't be known ahead of time (a generated token, something only their console will show), say explicitly that it must be pasted as a single line with no spaces or breaks, and name the error they'll see if it isn't.
+## Pick the easiest route
 
-## Pick the easiest route, not the most pasteable one
+The page's job is to make the procedure easy for the user, not to maximize copy blocks. For each step, ask which route you'd honestly tell a friend to take.
 
-The page exists to make the procedure easy. It does not exist to make everything
-a copy block, and those two goals come apart more often than you would expect.
+**CLI earns its place when it's genuinely better**: many operations at once, no UI exists, exact values hard to type, or something worth running identically later. A single 2-field form in the UI is none of those. If the shell version needs installs, flags, and error handling to do what three UI taps would do, the UI is the right answer.
 
-Plenty of console tasks are genuinely trivial in the UI — click *Add site*, type
-a name, click *Create* — and genuinely awkward from a shell, needing a CLI
-install, an auth flow, a project flag and an incantation that fails in ways the
-UI simply doesn't have. Reaching for the command line there produces a longer,
-more fragile step that is *worse* for the person following it, purely because a
-command is something you can put a Copy button on. That is the tail wagging the
-dog.
-
-So for each step, ask which route you would honestly tell a friend to take, then
-write that one. "Open this page, click *Add another site*, enter
-`a9-tracker`" is an excellent step: it is one deep link, one button and one copy
-block for the only part worth copying.
-
-The command line earns its place when it is genuinely better: many operations at
-once, something with no UI at all, exact values that are painful to type
-correctly, or anything worth re-running identically later. A single form with
-two fields is none of those.
-
-A good tell is length. If the shell version of a step needs installs, flags and
-error handling to do what three taps would do, the UI is the answer and the
-elaborate script was you optimizing for the format instead of the person.
+A good example: "Open this page, click *Add site*, enter `a9-tracker`" — one link, one click, one copy block. That's better than an elaborate script that does the same work.
 
 ## Start from the template
 
-Copy `assets/template.html` and fill it in. Do not design a fresh page each time.
+Copy `assets/template.html` and fill it in. Do not design each page fresh.
 
-This is the house style for runbooks, which means `artifact-design`'s first rule
-already applies: honor the existing design system rather than inventing one. The
-template is that system. Redesigning per page burns effort on decisions that are
-already made, and produces a set of pages that don't look like siblings.
+The template is the house style: complete, themed across all three light/dark states, with copy buttons, progress bar, and fill-once panels already built. Its parts are marked `REPLACE` or marked for deletion. Redesigning per page burns effort on solved problems and makes the set look inconsistent.
 
-It ships complete and working — the palette across all three theme states, the
-copy buttons, the progress bar, the fill-once panel — with the parts you replace
-marked `REPLACE` and the two optional blocks marked for deletion. Your attention
-belongs on the steps: getting the order right, computing the values, naming the
-failures. That is where a runbook is won, not in the CSS.
+Your effort belongs on the procedure itself: order, computed values, named failures. That's where runbooks win.
 
-Deviate only when the subject genuinely calls for it, and only in the tokens at
-the top rather than by restyling components. If you do touch the CSS,
-`references/mechanics.md` explains which rules are load-bearing and why —
-`white-space: pre` on copy blocks, guarded `localStorage`, stable step ids — so
-you can tell a safe change from one that quietly breaks a copy.
+Only deviate if the subject genuinely demands it, and only in the top tokens (variables), not by restyling. See `references/mechanics.md` if you do touch CSS — it names which rules are load-bearing (`white-space: pre`, `localStorage` try/catch, stable step ids) so you can tell a safe change from one that breaks copy behavior.
 
 ## What the page needs to do
 
-These are the functional requirements the template already satisfies. They
-matter when you extend it, and they are what to check if you deviate.
+The template already handles these. They matter when extending it or deviating:
 
-**Tap to copy, and make the copy clean.** Every command and every value gets a copy button. Render them in `<pre>` with `white-space: pre` so a long value scrolls sideways rather than wrapping — wrapped text can leak line breaks into what gets copied. Clipboard access can be blocked, so fall back to `execCommand` and then to telling the user to select manually.
+**Copy blocks.** Every command and value gets a copy button in a `<pre white-space: pre>` block (so long values scroll, not wrap, avoiding invisible line breaks in the copied text). Fall back gracefully if clipboard is blocked.
 
-**One paste, not twelve.** A sequence of shell commands is a sequence of chances to paste half of one. Wrap the whole thing in a single `cat > script.sh <<'EOF' … EOF` block followed by the run command, so it's one copy, one paste, one return.
+**One paste per multi-step sequence.** Wrap shell command sequences in a single heredoc (`cat > script.sh <<'EOF' … EOF` then run), not twelve separate pastes.
 
-**Deep-link every step.** Link to the specific console page — the App Check tab, the Actions secrets page, the exact settings pane — never the product homepage. Finding the right page by navigation is most of the work on a small screen.
+**Deep links to the exact console page**, not product homepages. On small screens, navigation is most of the work.
 
-**Let them stop and come back.** These procedures span apps and get interrupted. Persist checkbox state to `localStorage` (wrapped in try/catch — it throws in some contexts) and show progress, so a phone call in the middle doesn't cost them their place.
+**Persistent progress.** Save checkbox state and any fill-in values to `localStorage` (wrapped in try/catch) so interruptions don't reset their place.
 
-**Number the steps only if order is real.** If step 4 depends on step 3's output, numbering is information. If the steps are independent, numbering is decoration — drop it.
+**Fill-once for repeated unknowns.** If the same account number, key, or ID appears in 3+ steps, put a small "fill this once" panel at the top instead of leaving 3+ placeholders to hand-edit. Every place on the page rewrites when filled. This eliminates the silent failure of a stale placeholder inside a copied command.
 
-**When a value can't be known, ask for it once.** Sometimes an identifier is genuinely unavailable to you — an account number, a chosen name, a generated id — and it recurs in eight different commands. Rather than leaving eight placeholders for them to edit by hand, put a small "fill this in once" panel at the top: they type it once, and every command, link and code block on the page rewrites to match. Persist those inputs the same way you persist progress.
+**Don't number steps unless order matters.** If step 4 depends on step 3's output, numbering is information. If they're independent, drop it — it's just clutter.
 
-This is worth reaching for whenever the same unknown appears more than two or three times. Hand-editing a placeholder inside a copied command is precisely the error-prone transcription the page exists to eliminate — and it fails silently, because a command with a stale placeholder still looks plausible. Keep the panel small and put it above the first step, since nothing below it is correct until it's filled.
+## Write for failure
 
-## Write for the moment of failure
+Every step will fail for someone. The difference is in what happens then.
 
-Assume every step will fail for someone. The difference between a good runbook and a bad one is what happens then.
+**Put warnings inline, not in preambles.** A caution about a debug token belongs in that step, not the intro. Nobody re-reads introductions when they're stuck.
 
-**Put each warning where it fires, not in a preamble.** A caution about a debug token belongs in the debug token step. Nobody re-reads the intro.
+**Name the failure signature.** Systems produce misleading errors (a new account showing "does not exist" due to propagation lag; App Check misconfiguration showing silent data loss). Say "if you see X, it means Y" — that sentence saves more debugging time than anything else on the page.
 
-**Name the failure signature.** These systems produce misleading errors: a freshly created account reported as *does not exist* because of propagation lag; App Check misconfiguration showing up as an app that loads perfectly and displays no data. Say "if you see X, it means Y" — that sentence saves more time than anything else on the page.
+**Say whether re-running is safe.** Make scripts idempotent (check before creating, retry transients), then state it: "Safe to run again" turns panic into confidence.
 
-**Say whether re-running is safe.** Make the scripts you hand over idempotent — check before creating, retry on transient failure — and then say so on the page. "Safe to run again" turns a scary error into a shrug.
+**Show what good looks like.** Not just "run it" — what output proves it worked, what to verify next.
 
-**Tell them what a good result looks like.** Not just "run it", but what output means it worked, and what to check afterwards.
+## Before publishing
 
-## Getting it right before publishing
+Two checks catch real breakage:
 
-Two checks worth doing every time, because both catch real breakage:
+**Verify copy blocks produce valid content.** Extract each block exactly as `innerText` would, HTML-unescape, and validate — `bash -n` for scripts, single-line-no-whitespace for values. A page that looks right but copies broken text is worse than no page.
 
-**Verify the copy blocks produce valid content.** Extract each block from the file exactly as `innerText` would yield it, HTML-unescape it, and check it — syntax-check a script with `bash -n`, confirm a value is a single line with no stray whitespace. A page that looks perfect and copies broken text is worse than no page.
-
-**Walk the order once as the user.** Does every value referenced in step 5 exist by step 5? Is anything needed before the first step they'd only discover at step 3? Front-load prerequisites — required permissions especially, since discovering a missing role halfway through means starting over.
+**Walk the steps as the user would.** Does every referenced value exist by the step that needs it? Are prerequisites front-loaded, not discovered partway through? A missing permission role halfway through means starting over — that should block from the beginning.
 
 ## Keeping it alive
 
-The procedure will change as they work through it, and the page is the deliverable — so update and republish it rather than issuing corrections in chat. When they hit an error the page didn't anticipate, fix the page as well as answering the question. That is the difference between a runbook and a transcript.
+The page is the deliverable. When they hit an error the page didn't anticipate, fix the page, not just the chat. Update and republish — that's the difference between a runbook and a transcript.
 
-Give the chat reply the immediate answer — what to do right now, in a sentence or two — and let the page carry the durable version. Don't make them re-read a wall of text to find the one line that unblocks them.
+In chat: give the one-sentence answer to unblock them immediately. The page carries the durable version. Don't make them excavate a wall of text for the fix.
