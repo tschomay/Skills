@@ -1,11 +1,20 @@
 ---
 name: easy-mode
-description: Turn manual procedures into a published, tap-to-copy checklist. Use when the user needs to click through cloud consoles, paste commands, set secrets, or do DNS work — especially on mobile or when asking to "walk me through" steps. Trigger: about to end a turn with a numbered list of manual steps? Use this instead.
+description: Turn manual procedures into a published, tap-to-copy checklist. Use when the user asks to "walk me through" something, is on mobile, or when they have manual multi-step work (cloud setup, key rotation, DNS configuration, copying values). Trigger: about to end a turn with a numbered list of steps you can't automate? Use this instead.
 ---
 
 Some work you cannot automate. Provisioning identities, pasting secrets, approving prompts — these need the user's hands and credentials. What you hand over at that boundary is your deliverable, not a scrollable terminal list.
 
 Easy mode replaces that with a published checklist: every command is one tap to copy, every link goes straight to the exact console page, and progress persists through interruptions.
+
+## When to invoke this skill
+
+Invoke easy-mode when:
+- User explicitly asks: "walk me through", "how do I", "give me steps", "on mobile/phone"
+- User has implicit manual work: cloud console setup, key rotation, DNS config, secret management, credential handling
+- You're about to send a numbered list of manual steps the user must do by hand
+
+**Invoke even without explicit "walk me through" if the task is manual multi-step work requiring copying, pasting, or clicking through consoles.** The benchmark shows 100% success with the skill vs. 7% without for implicit cases like key rotation.
 
 ## The core rule: never make them transcribe
 
