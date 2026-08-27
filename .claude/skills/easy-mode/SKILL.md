@@ -44,9 +44,31 @@ A good tell is length. If the shell version of a step needs installs, flags and
 error handling to do what three taps would do, the UI is the answer and the
 elaborate script was you optimizing for the format instead of the person.
 
+## Start from the template
+
+Copy `assets/template.html` and fill it in. Do not design a fresh page each time.
+
+This is the house style for runbooks, which means `artifact-design`'s first rule
+already applies: honor the existing design system rather than inventing one. The
+template is that system. Redesigning per page burns effort on decisions that are
+already made, and produces a set of pages that don't look like siblings.
+
+It ships complete and working — the palette across all three theme states, the
+copy buttons, the progress bar, the fill-once panel — with the parts you replace
+marked `REPLACE` and the two optional blocks marked for deletion. Your attention
+belongs on the steps: getting the order right, computing the values, naming the
+failures. That is where a runbook is won, not in the CSS.
+
+Deviate only when the subject genuinely calls for it, and only in the tokens at
+the top rather than by restyling components. If you do touch the CSS,
+`references/mechanics.md` explains which rules are load-bearing and why —
+`white-space: pre` on copy blocks, guarded `localStorage`, stable step ids — so
+you can tell a safe change from one that quietly breaks a copy.
+
 ## What the page needs to do
 
-Build it as an artifact, following `artifact-design` like any other page. These are the functional requirements on top of that; `references/mechanics.md` has the copy-button and progress-persistence code, which is fiddly enough to be worth not rewriting.
+These are the functional requirements the template already satisfies. They
+matter when you extend it, and they are what to check if you deviate.
 
 **Tap to copy, and make the copy clean.** Every command and every value gets a copy button. Render them in `<pre>` with `white-space: pre` so a long value scrolls sideways rather than wrapping — wrapped text can leak line breaks into what gets copied. Clipboard access can be blocked, so fall back to `execCommand` and then to telling the user to select manually.
 

@@ -1,8 +1,12 @@
 # Runbook page mechanics
 
-Working code for the two interactive pieces every easy-mode page needs. Adapt
-the styling freely — the design should suit the subject, per `artifact-design`.
-What matters here is the behavior, which is easy to get subtly wrong.
+`assets/template.html` already contains all of this, working. Build from the
+template rather than from this file.
+
+Read this when you need to extend the template, or when you are tempted to change
+something in it — each section explains which rules are load-bearing and what
+breaks when they go. Most of these failures are silent: the page looks right and
+the copied text is wrong.
 
 ## Copy buttons
 
